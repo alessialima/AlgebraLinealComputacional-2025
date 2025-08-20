@@ -91,4 +91,9 @@ def intercambiarFilas(A: list[[]], i: int, j: int):
     return A
 print(intercambiarFilas(A.tolist(), 0,1))
 
-
+# Ejercicio 10: 
+def sumar_fila_multiplo(A: list[[]], i: int, j: int, s: int): 
+    for a in range(len(A[0])):
+        A[i][a] = A[i][a] + A[j][a]*s
+    return A
+print(sumar_fila_multiplo(A,0,1,3))
