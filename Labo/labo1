@@ -8,13 +8,14 @@ print(B)
 
 # Ejercicio 1 
 def esCuadrada(matriz: list[[]]):
-    i = 0
-    long = len(matriz[0])
-    res = True 
+    columnas = len(matriz[0])
     for i in range(len(matriz)):
-        if len(matriz[i]) != long:
+        if len(matriz[i]) != columnas:
             res = False 
-    return res 
+        else:
+            return len(matriz[i]) == columnas
+
+
 print(esCuadrada(A.tolist())) # si era array no me dejaba
 print(esCuadrada(B))
 
@@ -51,12 +52,11 @@ print(traza(B))
 # Ejercicio 6:
 def traspuesta(matriz: list[[]]):
      a = 0
-     res = []
-    
+     res = []    
      for i in range(len(matriz[0])):
          fila = []
          for j in range(len(matriz)): 
-              fila.append(matriz[i][j])
+              fila.append(matriz[j][i])
          res.append(fila)
      return res # para que tenga la formita de matriz uso: np.array(res) 
 print(traspuesta(A1))
@@ -74,13 +74,12 @@ print(esSimetrica(A1))
 
 # Ejercicio 8:
 def calcularAX(A: list[[]], x: list): 
-    A_trans = transpuesta(A)
     b = []
-    for i in range(len(A_trans)): 
-        a = 0
-        for j in range(len(A_trans[i])):
-            a += (A_trans[i][j]*x[i])
-        b.append(a)
+    for i in range(len(A)): 
+        suma = 0
+        for j in range(len(A[i])):
+            suma += (A[i][j]*x[j])
+        b.append(suma)
     return b 
 
 # Ejercicio 9: 
@@ -119,3 +118,5 @@ def esDiagonalmenteDominante(A: list[[]]):
             res = False 
     return res 
 print(esDiagonalmenteDominante(A.tolist()))
+
+# obs: podria haber usado abs() en lugar de la funcion de valor absoluto pero no se si se puede ya fue
