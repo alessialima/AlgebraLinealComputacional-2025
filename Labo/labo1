@@ -97,3 +97,25 @@ def sumar_fila_multiplo(A: list[[]], i: int, j: int, s: int):
         A[i][a] = A[i][a] + A[j][a]*s
     return A
 print(sumar_fila_multiplo(A,0,1,3))
+
+# Ejercicio 11 
+def valorAbsoluto(num: int):
+    if num >= 0:
+        return num
+    else:
+        return num * -1
+        
+def esDiagonalmenteDominante(A: list[[]]):
+    res = True 
+    for i in range(len(A)):
+        d = 0
+        s = 0
+        for j in range(len(A[i])):
+            if i == j:
+                d = valorAbsoluto(A[i][j])
+            else:
+                s += valorAbsoluto(A[i][j])
+        if d < s:
+            res = False 
+    return res 
+print(esDiagonalmenteDominante(A.tolist()))
