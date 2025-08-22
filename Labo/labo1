@@ -20,7 +20,37 @@ print(esCuadrada(A.tolist())) # si era array no me dejaba
 print(esCuadrada(B))
 
 
-# Ejercicio 2: ?? 
+# Ejercicio 2 : completamente robado del apunte acosta - laplagne
+
+def row_echelon(M): # row_echelon significa matriz escalonada por filas 
+ A = M.astype(float) 
+ r, c = A.shape
+ if r == 0 or c == 0:
+  return A # no tiene columnas/filas la devuelvo como esta 
+
+ for i in range(len(A)):
+  if A[i,0] != 0:
+    break # busco elementos != 0 de la primera columna
+  else:
+    B = row_echelon(A[:,1:]) # si son todos cero paso a la siguiente colmuna 
+    return np.hstack([A[:,:1], B]) 
+
+ if i > 0: 
+  ith_row = A[i].copy()
+  A[i] = A[0] # intercambia filas 
+  A[0] = ith_row
+
+ A[0] = A[0] / A[0,0] 
+ A[1:] -= A[0] * A[1:,0:1]
+ B = row_echelon(A[1:,1:])
+ return np.vstack([A[:1], np.hstack([A[1:,:1], B]) ])
+
+
+C = np.array([[1,2,3,4],[5,6,7,8],[9,10,11,12]])
+
+print(row_echelon(A))
+print(row_echelon(C))
+
 # Ejercicio 3: ?? 
 
 # Ejercicio 4: 
