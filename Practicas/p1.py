@@ -55,5 +55,34 @@ plt.plot(xx,yy,'*')
 plt.plot(x,f(x))
 plt.show()
 
-#%% 
+#%% Ejercicio 21 
+
+def traza(A):
+    res = 0
+    for i in range(len(A)): 
+        for j in range(len(A[i])):
+            if j == i:
+                res += A[i][j]
+    return res 
+
+def sumatoria(A):
+    res = 0
+    for i in range(len(A)): 
+        for j in range(len(A[i])):
+            res += A[i][j]
+    return res 
+
+
+def puntoc(A):
+    elemP = 0 
+    elemN = 0
+    for i in range(len(A)): 
+        for j in range(len(A[i])):
+            if A[i][j] < 0:
+                elemN += A[i][j]
+            else:
+                elemP += A[i][j]
+    return abs(elemP) == abs(elemN)
+    
+            
 
