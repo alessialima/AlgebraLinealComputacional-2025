@@ -238,3 +238,168 @@ def condMC(A, p, Np): # este es con inducida
 def condExacta(A, p): # este es con sumatoria 
     res = normaExacta(A, p) * normaExacta(inversa(A), p)
     return res 
+
+# Modulo 4 
+def calculaLU(A): 
+    U = None 
+    nops = 0 
+    pivote = 0 
+    U = A.copy() 
+    L = np.eye(len(A))
+
+    if len(A) != len(A[0]): # si no es cuadrada chau 
+        return None, None, 0 
+        
+    for i in range(len(A)-1): 
+        pivote = U[i][i] 
+        if abs(pivote) < 1: # 0 < pivote < 1
+            return None, None, 0 
+            
+        for j in range(i + 1, len(U)): 
+                coef = U[j][i]/pivote
+                U[j][i] = 0 
+                nops += 1 
+                L[j][i] = coef
+                
+                for k in range(i+1, len(A)): 
+                    U[j][k] -= coef * U[i][k]
+                    nops += 2 # mult y resta son dos operaciones 
+                    
+    return np.array(L), np.array(U), nops
+
+def res_tri(L,b,inferior=True):
+    x = len(b)*[0]
+    if inferior == True: 
+        for i in range(len(b)):
+            suma = 0
+            for j in range(i):  
+                suma += L[i][j] * x[j] # me armo la mini sumita 
+            x[i] = (b[i] - suma) / L[i][i]  
+        return x
+    else: 
+        for i in range(len(b)-1, -1, -1):  # cuento abajo a arriba
+            suma = 0
+            for j in range(i+1, len(b)):  # me armo la sumita 
+                suma += L[i][j] * x[j]
+            x[i] = (b[i] - suma) / L[i][i]
+        return x
+  
+def determinante(A):
+    A = np.array(A) 
+    
+    if len(A) == 0: # escribo casos base 
+        return 1 
+    if len(A)!=len(A[0]): 
+        return 0 
+    det = 0
+    for i in range(len(A[0])):
+            submatriz = []
+            for k in range(1, len(A)):
+               fila = []
+               for l in range(len(A)): 
+                   if l != i: 
+                       fila.append(A[k][l])
+               submatriz.append(fila)
+                
+            menor = determinante(submatriz)
+            signo = (-1)**i 
+            det += signo * A[0][i] * menor # menor es la submatriz esa de los det 
+    return det
+    
+def inversa(A):  
+            A = np.array(A, dtype=float) 
+
+            if len(A) != len(A[0]): 
+                return None 
+                
+            if abs(determinante(A)) < 1e-12: 
+                return None
+                
+            A_inv = np.eye(len(A))
+            A_copia = A.copy()
+                
+            for i in range(len(A)): 
+                if abs(A_copia[i][i]) < 1e-12:
+                    res = False 
+                    for k in range(i + 1, n): 
+                        if abs(A_copia[k][i]) > 1e-12:
+                            A_copia[[i, k]] = A_copia[[k, i]]
+                            A_inv[[i, k]] = A_inv[[k, i]]
+                            res = True 
+                            break
+                    if not res: 
+                          return None 
+                
+                pivote = A_copia[i][i]
+                A_copia[i] = A_copia[i] / pivote
+                A_inv[i] = A_inv[i] / pivote
+                      
+                for j in range(len(A)):
+
+                    if j != i:  
+                      coef = A_copia[j][i]  
+                      A_copia[j] = A_copia[j] - coef*A_copia[i]
+                      A_inv[j] = A_inv[j] - coef*A_inv[i]
+            return A_inv
+
+def diagonal(U): # en otra funcion para que sea mas aesthetic 
+    U_copia = U.copy()
+    D = np.zeros((len(U), len(U)))
+    
+    for i in range(len(U)):
+        pivote = U_copia[i][i]
+        
+        if abs(pivote) < 1e-12:
+            return None  
+        
+        D[i][i] = pivote
+        
+        for j in range(i + 1, len(U)):
+            factor = U_copia[j][i] / pivote
+            for k in range(i, len(U)):
+                U_copia[j][k] -= factor * U_copia[i][k]    
+    return D
+
+def calculaLDV(A): 
+    A = np.array(A, dtype=float) 
+    nops = 0
+    
+    L, U, P = calculaLU(A)
+    if L is None or U is None: 
+        return None, None, None, nops
+
+    D = diagonal(U) 
+    V = U.copy() 
+    for i in range(len(A)):
+        if abs(V[i, i]) > 1e-08:
+            div = V[i][i]
+            for j in range(len(V[i])): 
+                V[i][j] = V[i][j] / div 
+                nops += 1
+        else: 
+            return None, None, None, nops # es singular 
+    return L, D, V, nops  
+
+def esSDP(A, atol = 1e-12): # lo hice mas estricto pq no me pasaba el test 
+    A = np.array(A, dtype=float)
+    
+# es cuadrada?
+    if len(A) != len(A[0]): 
+        return False 
+# es simetrica ? A = A´t ?
+    if len(A) != len(A[0]): 
+        return False 
+    for i in range(len(A)): 
+        for j in range(i+1,len(A)): 
+          if abs(A[i][j]-A[j][i])>atol:
+            return False 
+# te odio ldv 
+    L, D, V, nops = calculaLDV(A) 
+    if L is None or D is None or V is None: 
+             return False 
+    D = np.array(D)
+# diagonales de D positivas ? 
+    for l in range(len(D)): 
+        if D[l, l] <= atol: 
+            return False 
+    return True 
