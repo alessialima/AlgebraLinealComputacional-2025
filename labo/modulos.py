@@ -403,3 +403,90 @@ def esSDP(A, atol = 1e-12): # lo hice mas estricto pq no me pasaba el test
         if D[l, l] <= atol: 
             return False 
     return True 
+
+# modulo 5 
+def norma2(a):
+    suma = 0
+    for i in range(len(a)):
+        suma += (abs(a[i])**2)
+    return (suma)**(1/2)
+
+def producto(a, B):
+    res = [0]*len(B) 
+    for i in range(len(B)): 
+        res[i] = B[i] * a 
+    return res 
+
+def producto_escalar(A, B):
+    res = 0
+    for i in range(len(A)): 
+        res += (A[i]*B[i])
+    return res 
+
+def resta_vectores(v, w):
+    res = [0]*len(v) 
+    for i in range(len(res)): 
+        res[i] = v[i] - w[i] 
+    return res 
+    
+
+def QR_con_GS(A, tol = 1e-12, retorna_nops = False): 
+    A = np.array(A, dtype= float) # por las dudas 
+    nops = 0
+
+    if len(A) != len(A[0]): # SOLO puede resolverse con matrices cuadradas 
+        Q = None 
+        R = None 
+        nops = None 
+    
+    n = len(A)    
+    Q = np.zeros((n,n))
+    R = np.zeros((n,n)) 
+    
+    At = traspuesta(A) 
+    
+    for j in range(n):
+        R[j][j] = norma2(At[j])
+        nops += n
+        
+        if R[j][j] < tol:           
+            for i in range(n):
+                Q[i][j] = 1.0 if i == j else 0.0 # si no cumple tolerancia lo agrandamos un cachitin. no quiero 0 o cercanos 
+        else:
+           
+            for i in range(n):
+                Q[i][j] = At[j][i] / R[j][j]
+            nops += n
+            
+        for k in range(j+1, n):
+            columna_q = [Q[i][j] for i in range(n)] 
+            R[j][k] = producto_escalar(columna_q, At[k])
+            nops += n
+            
+           
+            proj = producto(R[j][k], columna_q) 
+            At[k] = resta_vectores(At[k], proj)
+            nops += n
+    
+    if retorna_nops:
+        return Q, R, nops
+    else:
+        return Q, R  
+                     
+
+def QR_con_HH(A,tol=1e-12):
+    """
+    A una matriz de m x n (m>=n)
+    tol la tolerancia con la que se filtran elementos nulos en R
+    retorna matrices Q y R calculadas con reflexiones de Householder
+    Si la matriz A no cumple m>=n, debe retornar None
+    """
+def calculaQR(A,metodo='RH',tol=1e-12):
+    """
+    A una matriz de n x n 
+    tol la tolerancia con la que se filtran elementos nulos en R    
+    metodo = ['RH','GS'] usa reflectores de Householder (RH) o Gram Schmidt (GS) para realizar la factorizacion
+    retorna matrices Q y R calculadas con Gram Schmidt (y como tercer argumento opcional, el numero de operaciones)
+    Si el metodo no esta entre las opciones, retorna None
+    """    
+    
