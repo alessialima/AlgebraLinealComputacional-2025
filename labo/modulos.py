@@ -472,21 +472,175 @@ def QR_con_GS(A, tol = 1e-12, retorna_nops = False):
         return Q, R, nops
     else:
         return Q, R  
-                     
+        
+#%% HouseHolder 
+def multiplicarMatrices(A, B):
+    m = len(A)
+    n = len(B[0])
+    p = len(B)
+    res = np.zeros((n,m))
+    for i in range(m):
+        for j in range(n):
+            for k in range(p):
+                res[i][j] += A[i][k] * B[k][j]
+    return res
 
-def QR_con_HH(A,tol=1e-12):
-    """
-    A una matriz de m x n (m>=n)
-    tol la tolerancia con la que se filtran elementos nulos en R
-    retorna matrices Q y R calculadas con reflexiones de Householder
-    Si la matriz A no cumple m>=n, debe retornar None
-    """
-def calculaQR(A,metodo='RH',tol=1e-12):
-    """
-    A una matriz de n x n 
-    tol la tolerancia con la que se filtran elementos nulos en R    
-    metodo = ['RH','GS'] usa reflectores de Householder (RH) o Gram Schmidt (GS) para realizar la factorizacion
-    retorna matrices Q y R calculadas con Gram Schmidt (y como tercer argumento opcional, el numero de operaciones)
-    Si el metodo no esta entre las opciones, retorna None
-    """    
+def resta_matrices(A, B):
+    res = []
+    for i in range(len(A)):
+        fila = []
+        for j in range(len(A[i])):
+            fila.append(A[i][j] - B[i][j])
+        res.append(fila)
+    return res
+            
+def productoExterior(x, y):
+    m = len(x)
+    n = len(y)
+    res = [[0] * n for _ in range(m)]
+    for i in range(m):
+        for j in range(n):
+            res[i][j] = x[i] * y[j]
+    return res
+
+def multiplicar_escalar_vector(escalar, vector):
+    return [escalar * elemento for elemento in vector] #deepseek 
+
+def matriz_identidad(m):
+    res = np.zeros((m, m))
+    for i in range(len(res)): 
+        res[i][i] = 1
+    return res 
     
+def multiplicar_escalar_matriz(escalar, matriz):
+    return [[escalar * elemento for elemento in fila] for fila in matriz] # deepseek
+    
+def QR_con_HH(A,tol=1e-12):
+    A = np.array(A, dtype= float)
+    
+    
+    m = len(A) 
+    n = len(A[0])
+    
+    if m < n:
+             return None, None 
+    
+    Q = matriz_identidad(m)
+    R = A.tolist()
+                
+    for k in range(n):
+        
+        x = []
+        for i in range(k, m):
+            x.append(R[i][k])
+            
+        norma_x = norma2(x)
+        if norma_x < norma2(x):
+            continue
+            
+        if x[0] >= 0: 
+            alpha = -norma_x # quiero que sea negativo, no cambiarle el signo (segun ds)
+        else:
+            alpha = norma_x
+            
+        e1 = [0] * len(x) # la canonica e1
+        e1[0] = 1
+
+        alpha_e1 = multiplicar_escalar_vector(alpha, e1)
+        u = resta_vectores(x, alpha_e1) # hallando u 
+
+        norma_u = norma2(u)
+        if norma_u > tol: 
+            u_norm = multiplicar_escalar_vector(1/norma_u, u)
+
+            # quiero armar hkmoño
+            I = matriz_identidad(p) 
+            uuT = productoExterior(u_norm, u_norm)
+            uuT_2 = multiplicar_escalar_matriz(2, uuT)
+            Hk = resta_matrices(I, uuT_2)
+            
+           
+            Hk_ = matriz_identidad(m)
+            for i in range(k, m):
+                for j in range(k, m):
+                    Hk_[i][j] = Hk[i-k][j-k]
+            
+            R = multiplicarMatrices(Hk_, R) 
+            Q = multiplicarMatrices(Q, traspuesta(Hk_)) 
+    return np.array(Q), np.array(R)
+                
+#&& calcula QR    
+
+def calculaQR(A,metodo='RH',tol=1e-12):
+    if metodo == 'RH':
+        return QR_con_GS(A, tol, False)
+    else:
+        return QR_con_HH(A, tol)
+#&& Modulo 6 
+
+def multiplicarMv(A, v):
+    n = len(A)
+    resultado = [0] * n
+    for i in range(n):
+        for j in range(len(v)):
+            resultado[i] += A[i][j] * v[j]
+    return resultado
+
+def productoInterno(a,b):
+    res = 0
+    for i in range(len(b)):
+        res += a[i] * b[i]
+    return res
+
+def divisionVectorEscalar(a, b): 
+    for i in range(len(a)): 
+        a[i] = a[i] / b 
+    return a 
+
+def fAv(A, v): # fA2(v) 
+    Av1 = multiplicarMv(A, v)
+    v1 = divisionVectorEscalar(Av1,norma2(Av1))
+    Av2 = multiplicarMv(A, v1) 
+    return divisionVectorEscalar(Av2,norma2(Av2))
+
+def metpot2k(A, tol=1e-15,K=1000):
+    A = np.array(A, dtype= float)
+    n = len(A)
+    
+    v = [0]*n
+    for i in range(n): 
+        v[i] = random.random()
+
+    v_moño = fAv(A, v)
+    e = productoInterno(v_moño,v)
+    k = 0
+    
+    while abs(e-1)>tol and k<K:
+        v = v_moño.copy()
+        v_moño = fAv(A, v)
+        e = productoInterno(v_moño, v)
+        k += 1
+    
+    Av = multiplicarMv(A, v_moño)
+    lambd = productoInterno(Av, v_moño) 
+        
+    epsilon = e - 1
+    return v, lambd, epsilon 
+        
+ #%% 
+
+def resta_vectores(v, w): 
+    res = [0]*len(v)
+    for i in range(len(v)):
+        res[i] = v[i] - w[i]
+    return res 
+        
+
+def diagRH(A, tol=1e-15, K=1000): 
+    v, lamd, epsilon = metpot2k(A,tol, K)
+    e = [0]*len(v) 
+    e[0] = 1 
+    e_1 = resta_vectores(v, e)
+    prodExt = productoExterno(e_1, e_1) 
+    
+
