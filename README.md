@@ -6,6 +6,6 @@
   3. Labo 2: tranformación lineal
   4. labo 3: norma
   5. labo 4: descomposición LU
-  6. labo 5: algoritmo gram-schmidt & householder
+  6. labo 5: algoritmo g-s & hh
+  7. labo 6: metodo de la potencia
      
-Acá se encuentran algunos ejercicios de Labo, además de los módulos pedidos y sus test
