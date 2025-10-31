@@ -8,4 +8,5 @@
   5. labo 4: descomposición LU
   6. labo 5: algoritmo g-s & hh
   7. labo 6: metodo de la potencia
-     
+  8. labo 7: 
+  9. labo 8: svd 
