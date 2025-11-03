@@ -1,8 +1,8 @@
-import numpy as np
-import math 
-import random 
+#%% TEST 
 
-#%% modulo 1
+#%% 1er TEST: okey
+
+
 def sonIguales(x,y,atol=1e-08):
     return np.allclose(error(x,y),0,atol=atol)
 
@@ -20,8 +20,8 @@ assert(np.allclose(error_relativo(1,-1),2))
 assert(matricesIguales(np.diag([1,1]),np.eye(2)))
 assert(not matricesIguales(np.array([[1,2],[3,4]]).T,np.array([[1,2],[3,4]]))) 
 assert(matricesIguales(np.linalg.inv(np.array([[1,2],[3,4]]))@np.array([[1,2],[3,4]]),np.eye(2)))
-print('todo ok')
-#%% modulo 2
+
+# 2do Test 
 #Tests para rota
 assert(np.allclose(rota(0) , np.eye(2)))
 assert(np.allclose(rota(np.pi/2), np.array([[0, -1],[1, 0]])))
@@ -47,10 +47,11 @@ assert(np.allclose(afin(0,[2,3] ,[1,1]) ,np.array([[2,0,1] ,[0,3,1] ,[0,0,1]])))
 #Tests para trans afin
 assert(np.allclose(trans_afin(np.array([1,0]) , np.pi/2,[1,1] ,[0,0]) ,np.array([0,1])))
 assert(np.allclose(trans_afin(np.array([1,1]) , 0,[2,3] ,[0,0]) ,np.array([2,3])))
-assert(np.allclose(trans_afin(np.array([1,0]),np.pi/2,[3,2] ,[4,5]), np.array([0,7]))) # no pasa este test 
-print('todo ok')
-
-#%% modulo 3
+assert(np.allclose(trans_afin(np.array([1,0]),np.pi/2,[3,2] ,[4,5]), np.array([4,7]))) # este no me pasaba el test, segun el discord de la materia hay que cambiar el numerito 
+#print(trans_afin(np.array([1,0]),np.pi/2,[3,2] ,[4,5]))
+#print(rota(np.pi/2), escala([3,2]))
+print('2do test okey') 
+# Tests L03-Normas
 
 # Tests norma
 assert(np.allclose(norma(np.array([1,1]),2),np.sqrt(2)))
@@ -88,8 +89,41 @@ assert(np.allclose(np.abs(nMC[1][0]),1,atol=1e-3) and np.allclose(np.abs(nMC[1][
 A = np.array([[1,2],[3,4]])
 nMC = normaMatMC(A=A,q='inf',p='inf',Np=1000000)
 assert(np.allclose(nMC[0],normaExacta(A,'inf'),rtol=2e-1)) 
-print('todo ok')
+print('3er Test okey')
 
+# Test condExacta
+A = np.random.rand(10,10)
+A_ = np.linalg.solve(A,np.eye(A.shape[0]))
+normaA = normaExacta(A,1)
+normaA_ = normaExacta(A_,1)
+condA = condExacta(A,1)
+assert(np.allclose(normaA*normaA_,condA))
+
+A = np.random.rand(10,10)
+A_ = np.linalg.solve(A,np.eye(A.shape[0]))
+normaA = normaExacta(A,'inf')
+normaA_ = normaExacta(A_,'inf')
+condA = condExacta(A,'inf')
+assert(np.allclose(normaA*normaA_,condA))
+
+print('test CondExacta okey')
+
+# Test condMC
+
+A = np.array([[1,1],[0,1]])
+A_ = np.linalg.solve(A,np.eye(A.shape[0]))
+normaA = normaMatMC(A,2,2,10000)
+normaA_ = normaMatMC(A_,2,2,10000)
+condA = condMC(A,2,10000)
+assert(np.allclose(normaA[0]*normaA_[0],condA,atol=1e-3))
+
+A = np.array([[3,2],[4,1]])
+A_ = np.linalg.solve(A,np.eye(A.shape[0]))
+normaA = normaMatMC(A,2,2,10000)
+normaA_ = normaMatMC(A_,2,2,10000)
+condA = condMC(A,2,10000)
+assert(np.allclose(normaA[0]*normaA_[0],condA,atol=1e-3))
+print('test condMC okey')
 
 # Tests LU
 
@@ -198,4 +232,288 @@ D0 = np.diag([1,1,1])
 V0 = np.array([[1,0,0],[1,1,0],[1,1+1e-10,1]]).T
 A = L0 @ D0 @ V0
 assert(not esSDP(A))
-print('pasaron los test')
+print('pasaron los test del 5to')
+
+# --- Matrices de prueba ---
+A2 = np.array([[1., 2.],
+               [3., 4.]])
+
+A3 = np.array([[1., 0., 1.],
+               [0., 1., 1.],
+               [1., 1., 0.]])
+
+A4 = np.array([[2., 0., 1., 3.],
+               [0., 1., 4., 1.],
+               [1., 0., 2., 0.],
+               [3., 1., 0., 2.]])
+
+# --- Funciones auxiliares para los tests ---
+def check_QR(Q,R,A,tol=1e-10):
+    # Comprueba ortogonalidad y reconstrucción
+    assert np.allclose(Q.T @ Q, np.eye(Q.shape[1]), atol=tol)
+    assert np.allclose(Q @ R, A, atol=tol)
+
+# --- TESTS PARA QR_by_GS2 ---
+Q2,R2 = QR_con_GS(A2)
+check_QR(Q2,R2,A2)
+
+Q3,R3 = QR_con_GS(A3)
+check_QR(Q3,R3,A3)
+
+Q4,R4 = QR_con_GS(A4)
+check_QR(Q4,R4,A4)
+
+# --- TESTS PARA QR_by_HH ---
+Q2h,R2h = QR_con_GS(A2)
+check_QR(Q2h,R2h,A2)
+
+Q3h,R3h = QR_con_HH(A3)
+check_QR(Q3h,R3h,A3)
+
+Q4h,R4h = QR_con_HH(A4)
+check_QR(Q4h,R4h,A4)
+
+
+# --- TESTS PARA calculaQR ---
+Q2c,R2c = calculaQR(A2,metodo='RH')
+check_QR(Q2c,R2c,A2)
+
+Q3c,R3c = calculaQR(A3,metodo='GS')
+check_QR(Q3c,R3c,A3)
+
+Q4c,R4c = calculaQR(A4,metodo='RH')
+check_QR(Q4c,R4c,A4)
+
+print('todo ok qr')
+
+
+# Tests metpot2k
+
+S = np.vstack([
+    np.array([2,1,0])/np.sqrt(5),
+    np.array([-1,2,5])/np.sqrt(30),
+    np.array([1,-2,1])/np.sqrt(6)
+              ]).T
+
+# Pedimos que pase el 95% de los casos
+exitos = 0
+for i in range(100):
+    D = np.diag(np.random.random(3)+1)*100
+    A = S@D@S.T
+    v,l,_ = metpot2k(A,1e-15,1e5)
+    if np.abs(l - np.max(D))< 1e-8:
+        exitos += 1
+assert exitos > 95
+
+print('paso el test de mepot')
+
+
+#Test con HH
+exitos = 0
+for i in range(100):
+    v = np.random.rand(9)
+    #v = np.abs(v)
+    #v = (-1) * v
+    ixv = np.argsort(-np.abs(v))
+    D = np.diag(v[ixv])
+    I = np.eye(9)
+    H = I - 2*np.outer(v.T, v)/(np.linalg.norm(v)**2)   #matriz de HouseHolder
+
+    A = H@D@H.T
+    v,l,_ = metpot2k(A, 1e-15, 1e5)
+    #max_eigen = abs(D[0][0])
+    if abs(l - D[0,0]) < 1e-8:         
+        exitos +=1
+assert exitos > 95
+
+print('listo diag con metpot') 
+
+# Test 7 
+
+def es_markov(T,tol=1e-6):
+    """
+    T una matriz cuadrada.
+    tol la tolerancia para asumir que una suma es igual a 1.
+    Retorna True si T es una matriz de transición de Markov (entradas no negativas y columnas que suman 1 dentro de la tolerancia), False en caso contrario.
+    """
+    n = T.shape[0]
+    for i in range(n):
+        for j in range(n):
+            if T[i,j]<0:
+                return False
+    for j in range(n):
+        suma_columna = sum(T[:,j])
+        if np.abs(suma_columna - 1) > tol:
+            return False
+    return True
+
+def es_markov_uniforme(T,thres=1e-6):
+    """
+    T una matriz cuadrada.
+    thres la tolerancia para asumir que una entrada es igual a cero.
+    Retorna True si T es una matriz de transición de Markov uniforme (entradas iguales a cero o iguales entre si en cada columna, y columnas que suman 1 dentro de la tolerancia), False en caso contrario.
+    """
+    if not es_markov(T,thres):
+        return False
+    # cada columna debe tener entradas iguales entre si o iguales a cero
+    m = T.shape[1]
+    for j in range(m):
+        non_zero = T[:,j][T[:,j] > thres]
+        # all close
+        close = all(np.abs(non_zero - non_zero[0]) < thres)
+        if not close:
+            return False
+    return True
+
+
+def esNucleo(A,S,tol=1e-5):
+    """
+    A una matriz m x n
+    S una matriz n x k
+    tol la tolerancia para asumir que un vector esta en el nucleo.
+    Retorna True si las columnas de S estan en el nucleo de A (es decir, A*S = 0. Esto no chequea si es todo el nucleo
+    """
+    for col in S.T:
+        res = A @ col
+        if not np.allclose(res,np.zeros(A.shape[0]), atol=tol):
+            return False
+    return True
+
+## TESTS
+# transiciones_al_azar_continuas
+# transiciones_al_azar_uniformes
+for i in range(1,100):
+    T = transiciones_al_azar_continuas(i)
+    assert es_markov(T), f"transiciones_al_azar_continuas fallo para n={i}"
+    
+    T = transiciones_al_azar_uniformes(i,0.3)
+    assert es_markov_uniforme(T), f"transiciones_al_azar_uniformes fallo para n={i}"
+    # Si no atajan casos borde, pueden fallar estos tests. Recuerden que suma de columnas DEBE ser 1, no valen columnas nulas.
+    T = transiciones_al_azar_uniformes(i,0.01)
+    assert es_markov_uniforme(T), f"transiciones_al_azar_uniformes fallo para n={i}"
+    T = transiciones_al_azar_uniformes(i,0.01)
+    assert es_markov_uniforme(T), f"transiciones_al_azar_uniformes fallo para n={i}"
+    
+# nucleo
+A = np.eye(3)
+S = nucleo(A)
+assert S.shape[0]==0, "nucleo fallo para matriz identidad"
+A[1,1] = 0
+S = nucleo(A)
+msg = "nucleo fallo para matriz con un cero en diagonal"
+assert esNucleo(A,S), msg
+assert S.shape==(3,1), msg
+assert abs(S[2,0])<1e-2, msg
+assert abs(S[0,0])<1e-2, msg
+
+v = np.random.random(5)
+v = v / np.linalg.norm(v)
+H = np.eye(5) - np.outer(v, v)  # proyección ortogonal
+S = nucleo(H)
+msg = "nucleo fallo para matriz de proyeccion ortogonal"
+assert S.shape==(5,1), msg
+v_gen = S[:,0]
+v_gen = v_gen / np.linalg.norm(v_gen)
+assert np.allclose(v, v_gen) or np.allclose(v, -v_gen), msg
+
+# crea rala
+listado = [[0,17],[3,4],[0.5,0.25]]
+A_rala_dict, dims = crea_rala(listado,32,89)
+assert dims == (32,89), "crea_rala fallo en dimensiones"
+assert A_rala_dict[(0,3)] == 0.5, "crea_rala fallo"
+assert A_rala_dict[(17,4)] == 0.25, "crea_rala fallo"
+assert len(A_rala_dict) == 2, "crea_rala fallo en cantidad de elementos"
+
+listado = [[32,16,5],[3,4,7],[7,0.5,0.25]]
+A_rala_dict, dims = crea_rala(listado,50,50)
+assert dims == (50,50), "crea_rala fallo en dimensiones con tol"
+assert A_rala_dict.get((32,3)) == 7
+assert A_rala_dict[(16,4)] == 0.5
+assert A_rala_dict[(5,7)] == 0.25
+
+listado = [[1,2,3],[4,5,6],[1e-20,0.5,0.25]]
+A_rala_dict, dims = crea_rala(listado,10,10)
+assert dims == (10,10), "crea_rala fallo en dimensiones con tol"
+assert (1,4) not in A_rala_dict
+assert A_rala_dict[(2,5)] == 0.5
+assert A_rala_dict[(3,6)] == 0.25
+assert len(A_rala_dict) == 2
+
+# caso borde: lista vacia. Esto es una matriz de 0s
+listado = []
+A_rala_dict, dims = crea_rala(listado,10,10)
+assert dims == (10,10), "crea_rala fallo en dimensiones con lista vacia"
+assert len(A_rala_dict) == 0, "crea_rala fallo en cantidad de elementos con lista vacia"
+
+# multiplica rala vector
+listado = [[0,1,2],[0,1,2],[1,2,3]]
+A_rala = crea_rala(listado,3,3)
+v = np.random.random(3)
+v = v / np.linalg.norm(v)
+res = multiplica_rala_vector(A_rala,v)
+A = np.array([[1,0,0],[0,2,0],[0,0,3]])
+res_esperado = A @ v
+assert np.allclose(res,res_esperado), "multiplica_rala_vector fallo"
+
+A = np.random.random((5,5))
+A = A * (A > 0.5) 
+listado = [[],[],[]]
+for i in range(5):
+    for j in range(5):
+        listado[0].append(i)
+        listado[1].append(j)
+        listado[2].append(A[i,j])
+        
+A_rala = crea_rala(listado,5,5)
+v = np.random.random(5)
+assert np.allclose(multiplica_rala_vector(A_rala,v), A @ v)
+print('ok')
+
+#%% 
+# Matrices al azar
+def genera_matriz_para_test(m,n=2,tam_nucleo=0):
+    if tam_nucleo == 0:
+        A = np.random.random((m,n))
+    else:
+        A = np.random.random((m,tam_nucleo))
+        A = np.hstack([A,A])
+    return(A)
+
+def test_svd_reducida_mn(A,tol=1e-15):
+    m,n = A.shape
+    hU,hS,hV = svd_reducida(A,tol=tol)
+    nU,nS,nVT = np.linalg.svd(A)
+    r = len(hS)+1
+    assert np.all(np.abs(np.abs(np.diag(hU.T @ nU))-1)<10**r*tol), 'Revisar calculo de hat U en ' + str((m,n))
+    assert np.all(np.abs(np.abs(np.diag(nVT @ hV))-1)<10**r*tol), 'Revisar calculo de hat V en ' + str((m,n))
+    assert len(hS) == len(nS[np.abs(nS)>tol]), 'Hay cantidades distintas de valores singulares en ' + str((m,n))
+    assert np.all(np.abs(hS-nS[np.abs(nS)>tol])<10**r*tol), 'Hay diferencias en los valores singulares en ' + str((m,n))
+#,5,10,20
+for m in [2,5,10,20]:
+    for n in [2,5,10,20]:
+        for _ in range(10):
+        #    if m == 5 and n == 10:
+               A = genera_matriz_para_test(m,n)
+               test_svd_reducida_mn(A)
+               #print('ok' + str((m,n)))
+              # print('mi funcion', svd_reducida(A, tol=1e-15), 'test', np.linalg.svd(A, full_matrices=False))
+
+print('ok 1er test')
+
+# Matrices con nucleo
+m = 12
+for tam_nucleo in [2]:
+   # for _ in range(10):
+        A = genera_matriz_para_test(m,tam_nucleo=tam_nucleo)
+        test_svd_reducida_mn(A)
+# Tamaños de las reducidas
+A = np.random.random((8,6)) 
+for k in [1,3,5]:
+    hU,hS,hV = svd_reducida(A,k=k)
+    assert hU.shape[0] == A.shape[0], 'Dimensiones de hU incorrectas (caso a)'
+    assert hV.shape[0] == A.shape[1], 'Dimensiones de hV incorrectas(caso a)'
+    assert hU.shape[1] == k, 'Dimensiones de hU incorrectas (caso a)'
+    assert hV.shape[1] == k, 'Dimensiones de hV incorrectas(caso a)'
+    assert len(hS) == k, 'Tamaño de hS incorrecto'
+print('ok segundo test ')
+
