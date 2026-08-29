@@ -54,8 +54,24 @@ def escala(s):
 def rota_y_escala(theta, s):
   S = escala(s)
   R = rota(theta)
-  a = 
+  a = S[0,0]*R[0,0] + S[0,1]*R[1,0]
+  b = S[0,0]*R[0,1] + S[0,1]*R[1,1]
+  c = S[1,0]*R[0,0] + S[1,1]*R[1,0]
+  d = S[1,0]*R[0,1] + S[1,1]*R[1,1]
+  return np.array([[a,b],[c,d]], dtype=np.float64) 
 
+def afin(theta, s, b): 
+  Rt = rota_y_escala(theta, s) 
+  matriz_afin = np.array([[rt[0,0],rt[0,1],b[0]],[rt[1,0],rt[1,1],b[1]],[0,0,1]], dtype=np.float64) 
+  return matriz_afin 
+
+def trans_afin(v, theta, s, b): 
+  matriz_afin = afin(theta,s,b) 
+  v_hom = np.array([v[0],v[1],1], dtype=np.float64) 
+  x = matriz_afin[0,0]*v_hom[0]+matriz_afin[0,1]*v_hom[1]+matriz_afin[0,2]*v_hom[2]
+  y = matriz_afin[1,0]*v_hom[0]+matriz_afin[1,1]*v_hom[1]+matriz_afin[1,2]*v_hom[2]
+  return np.array([x,y], dtype=np.float64) 
+  
 
 
 
