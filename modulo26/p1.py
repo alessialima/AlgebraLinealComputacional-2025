@@ -46,7 +46,8 @@ def escala(s):
     for j in range(n):
       if i != j:
         fila.append(np.float64(0))
-      fila.append(s[j])
+      else: 
+        fila.append(s[j])
     res.append(fila)
   res = np.array(res, dtype=np.float64)
   return res 
@@ -61,7 +62,7 @@ def rota_y_escala(theta, s):
   return np.array([[a,b],[c,d]], dtype=np.float64) 
 
 def afin(theta, s, b): 
-  Rt = rota_y_escala(theta, s) 
+  rt = rota_y_escala(theta, s) 
   matriz_afin = np.array([[rt[0,0],rt[0,1],b[0]],[rt[1,0],rt[1,1],b[1]],[0,0,1]], dtype=np.float64) 
   return matriz_afin 
 
