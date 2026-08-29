@@ -36,7 +36,7 @@ Practica 2
 """
 
 def rota(theta):
-  return np.array([[np.cos(theta), - np.sen(theta)],[np.sen(theta), np.cos(theta)]]
+  return np.array([[np.cos(theta), - np.sin(theta)],[np.sin(theta), np.cos(theta)]]
 
 def escala(s): 
   n = len(s) 
