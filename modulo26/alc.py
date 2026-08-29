@@ -1,6 +1,4 @@
-"""
-Practica 1: 
-"""
+##% Módulo 1: Error numérico
 
 import numpy as np 
 
@@ -31,9 +29,7 @@ def matricesIguales(A, B):
         return False 
   return True 
 
-""" 
-Practica 2
-"""
+##% Módulo 2: Transformaciones lineales
 
 def rota(theta):
   return np.array([[np.cos(theta), - np.sin(theta)],[np.sin(theta), np.cos(theta)]])
