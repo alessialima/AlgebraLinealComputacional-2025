@@ -35,8 +35,26 @@ def matricesIguales(A, B):
 Practica 2
 """
 
+def rota(theta):
+  return np.array([[np.cos(theta), - np.sen(theta)],[np.sen(theta), np.cos(theta)]]
 
+def escala(s): 
+  n = len(s) 
+  res = []
+  for i in range(n):
+    fila = []
+    for j in range(n):
+      if i != j:
+        fila.append(np.float64(0))
+      fila.append(s[j])
+    res.append(fila)
+  res = np.array(res, dtype=np.float64)
+  return res 
 
+def rota_y_escala(theta, s):
+  S = escala(s)
+  R = rota(theta)
+  a = 
 
 
 
